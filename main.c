@@ -2,6 +2,8 @@
 #include "binary_heap.h"
 #include "queue.h"
 #include "stack.h"
+#include "hashset.h"
+#include "hashfuncs.h"
 
 int func(uint32_t x) {
 	return x % 2;
@@ -115,11 +117,36 @@ void test_binary_heap() {
 	printf("\n");
 	array_free(&bh);
 }
+void test_hashset() {
+	printf(">> Test Hashset <<<\n");
+	Int32Set s = { 0 };
+	s.hash = hash_uint64;
+	for (int i = 0; i < 100; ++i) {
+		int k = rand() % 50;
+		hashset_add(&s, k);
+	}
+	printf("%u, %u -> { ", s.capacity, s.len);
+	hashset_foreach(el, &s) {
+		printf("%d, ", *el);
+	}
+	printf("}\n");
+	hashset_remove(&s, 10);
+	hashset_remove(&s, 20);
+	hashset_remove(&s, 30);
+	hashset_remove(&s, 40);
+	printf("%u, %u -> { ", s.capacity, s.len);
+	hashset_foreach(el, &s) {
+		printf("%d, ", *el);
+	}
+	printf("}\n");
+	hashset_free(&s);
+}
 
 int main(void) {
 	test_arrays();
 	test_stacks();
 	test_queues();
 	test_binary_heap();
+	test_hashset();
 	return 0;
 }
