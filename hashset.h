@@ -24,16 +24,9 @@ typedef struct {
 #define __hashset_fill_pos(set, pos) ((set)->bitmap[(pos) / 64] |= (0b1ULL << ((pos) % 64)))
 #define __hashset_empty_pos(set, pos) ((set)->bitmap[(pos) / 64] &= ~(0b1ULL << ((pos) % 64))) 
 #define __hashset_insert(set, val) do { \
-		uint64_t hash = (set)->hash(val); \
-		uint32_t i = hash % (set)->capacity; \
-		uint32_t counter = 0; \
+		uint32_t i = (set)->hash(val) % (set)->capacity; \
 		uint8_t exists = 0; \
 		while(__hashset_is_filled_pos(set, i)) { \
-			if (counter++ > (set)->capacity) { \
-				fprintf(stderr, ANSI_RED "ERROR (%s, %d): " ANSI_RESET "Rehashing [%d] while trying to insert to a hashset failed!\n", __FILE__, __LINE__, val); \
-				exists = 1; \
-				break; \
-			} \
 			if (!(set)->cmp) { \
 				if ((set)->buffer[i] == val) { \
 					exists = 1; \
@@ -45,8 +38,7 @@ typedef struct {
 					break; \
 				} \
 			}\
-			hash = (set)->hash(hash); \
-			i = hash % (set)->capacity; \
+			i = (i + 1) % (set)->capacity; \
 		} \
 		if (!exists) { \
 			(set)->buffer[i] = val; \
@@ -82,14 +74,9 @@ typedef struct {
 	for (typeof(*(set)->buffer)* val_name = &(set)->buffer[0]; __CONCAT__(i, __LINE__)++ < (set)->capacity; ++val_name) \
 		if (__hashset_is_filled_pos(set, __CONCAT__(i, __LINE__) - 1))
 #define hashset_remove(set, val) do { \
-		uint64_t hash = (set)->hash(val); \
-		uint32_t pos = hash % (set)->capacity; \
-		uint32_t counter = 0; \
+		uint32_t pos = (set)->hash(val) % (set)->capacity; \
 		uint8_t found = 0; \
 		while (__hashset_is_filled_pos(set, pos)) { \
-			if (++counter > (set)->capacity) { \
-				break; \
-			} \
 			if (!(set)->cmp) { \
 				if ((set)->buffer[pos] == val) { \
 					found = 1; \
@@ -101,8 +88,7 @@ typedef struct {
 					break; \
 				} \
 			} \
-			hash = (set)->hash(hash); \
-			pos = hash % (set)->capacity; \
+			pos = (pos + 1) % (set)->capacity; \
 		} \
 		if (found) { \
 			(set)->buffer[pos] = 0; \
@@ -111,14 +97,9 @@ typedef struct {
 		} \
 	} while(0)
 #define hashset_contains(set, val) ({ \
-		uint64_t hash = (set)->hash(val); \
-		uint32_t pos = hash % (set)->capacity; \
-		uint32_t counter = 0; \
+		uint32_t pos = (set)->hash(val) % (set)->capacity; \
 		uint8_t found = 0; \
 		while (__hashset_is_filled_pos(set, pos)) { \
-			if (++counter > (set)->capacity) { \
-				break; \
-			} \
 			if (!(set)->cmp) { \
 				if ((set)->buffer[pos] == val) { \
 					found = 1; \
@@ -130,8 +111,7 @@ typedef struct {
 					break; \
 				} \
 			} \
-			hash = (set)->hash(hash); \
-			pos = hash % (set)->capacity; \
+			pos = (pos + 1) % (set)->capacity; \
 		} \
 		found; \
 	})
