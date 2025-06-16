@@ -5,6 +5,7 @@
 #include "hashset.h"
 #include "hashfuncs.h"
 #include "hashmap.h"
+#include "dynamic_string.h"
 
 int func(uint32_t x) {
 	return x % 2;
@@ -162,6 +163,28 @@ void test_hashmap() {
 	if (v3) printf("%d\n", *v3); else printf("None\n");
 	hashmap_free(&hm);
 }
+void test_string() {
+	printf(">>> Test Strings <<<\n");
+	String s = { 0 };
+	printf("Start\n");
+	string_append_c_str(&s, "Hello World! How are you doing today?");
+
+	printf("1: \"%s\"\n", s.buffer);
+	string_remove(&s, ' ');
+	printf("2: \"%s\"\n", s.buffer);
+
+	StringSlice sl = string_get_slice(&s, 5, 11);
+	string_append_slice(&s, &sl);
+	printf("3: \"%s\"\n", s.buffer);
+	string_reserve(&s, 20);
+	printf("4: \"%s\"\n", s.buffer);
+	
+	String s2 = { 0 };
+	string_append_file(&s2, "queue.h");
+
+	string_free(&s2);
+	string_free(&s);
+}
 
 int main(void) {
 	test_arrays();
@@ -170,5 +193,6 @@ int main(void) {
 	test_binary_heap();
 	test_hashset();
 	test_hashmap();
+	test_string();
 	return 0;
 }
