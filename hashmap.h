@@ -31,10 +31,25 @@ typedef struct {
 #define __hashmap_is_tombstone_pos(map, pos) ((map)->bitmap[(((pos) + (map)->capacity - 1) >> 6) + 1] & (0b1ULL << ((pos) % 64)))
 #define __hashmap_bury_pos(map, pos) ((map)->bitmap[(((pos) + (map)->capacity - 1) >> 6) + 1] |= (0b1ULL << ((pos) % 64)))
 #define __hashmap_dig_pos(map, pos) ((map)->bitmap[(((pos) + (map)->capacity - 1) >> 6) + 1] &= ~(0b1ULL << ((pos) % 64))) 
+#define __hashmap_bit_cmp(a, b) ({ \
+		_Static_assert(__builtin_types_compatible_p(typeof(a), typeof(b)), "Trying to compare two variables of different types!\n"); \
+		uint32_t len = sizeof(a); \
+		typeof(a) _a = (a), _b = (b); \
+		uint8_t* a_ptr = (uint8_t*)(&_a); \
+		uint8_t* b_ptr = (uint8_t*)(&_b); \
+		uint8_t ret = 1; \
+		for (uint32_t i = 0; i < len; ++i) { \
+			if (*(a_ptr++) != *(b_ptr++)) { \
+				ret = 0; \
+				break; \
+			} \
+		} \
+		ret; \
+	})
 #define __hashmap_cmp(map, val, pos) ({ \
 		int32_t eq = 0; \
 		if (!(map)->cmp) { \
-			if ((map)->buffer[pos].key == (val).key) { \
+			if (__hashmap_bit_cmp((map)->buffer[pos].key, (val).key)) { \
 				eq = 1; \
 			} \
 		} else { \
@@ -47,7 +62,7 @@ typedef struct {
 #define __hashmap_cmp_key(map, key_val, pos) ({ \
 		int32_t eq = 0; \
 		if (!(map)->cmp) { \
-			if ((map)->buffer[pos].key == (key_val)) { \
+			if (__hashmap_bit_cmp((map)->buffer[pos].key, (key_val))) { \
 				eq = 1; \
 			} \
 		} else { \
