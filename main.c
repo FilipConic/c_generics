@@ -4,6 +4,7 @@
 #include "stack.h"
 #include "hashset.h"
 #include "hashfuncs.h"
+#include "hashmap.h"
 
 int func(uint32_t x) {
 	return x % 2;
@@ -131,6 +132,7 @@ void test_hashset() {
 	}
 	printf("}\n");
 	hashset_remove(&s, 10);
+	hashset_remove(&s, 8);
 	hashset_remove(&s, 20);
 	hashset_remove(&s, 30);
 	hashset_remove(&s, 40);
@@ -141,6 +143,25 @@ void test_hashset() {
 	printf("}\n");
 	hashset_free(&s);
 }
+void test_hashmap() {
+	printf(">>> Test Hashmap <<<\n");
+	IntIntMap hm = { 0 };
+	hm.hash = hash_uint64;
+	hashmap_add(&hm, 2, 3);
+	hashmap_add(&hm, 5, 8);
+	printf("{ ");
+	hashmap_foreach(kv, &hm) {
+		printf("(%d: %d), ", kv->key, kv->value);
+	}
+	printf("}\n");
+	int32_t* v1 = hashmap_get(&hm, 2);
+	if (v1) printf("%d\n", *v1); else printf("None\n");
+	int32_t* v2 = hashmap_get(&hm, 8);
+	if (v2) printf("%d\n", *v2); else printf("None\n");
+	int32_t* v3 = hashmap_get(&hm, 5);
+	if (v3) printf("%d\n", *v3); else printf("None\n");
+	hashmap_free(&hm);
+}
 
 int main(void) {
 	test_arrays();
@@ -148,5 +169,6 @@ int main(void) {
 	test_queues();
 	test_binary_heap();
 	test_hashset();
+	test_hashmap();
 	return 0;
 }
