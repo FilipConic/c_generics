@@ -1,8 +1,11 @@
 # Generic containers in C
 
 Everything is created using C function macros.
-You can turn any structure into any container offered here, you just have to add the given fields and **#include** 'container'.h!
+Inspired by Sean Barret's [**stb_lib**](https://github.com/nothings/stb) and Tsoding's [**nob.h**](https://github.com/tsoding/nob.h)!
+
+You can turn any structure into any container offered here, you just have to add the given fields and `#include container.h`!
 Here is a list of the containers created and what you need to add to your struct to turn it into the given container!
+
 |Container name | Fields you need     |
 |:--------------|:--------------------|
 |array.h        |**Array struct**     |
@@ -41,3 +44,7 @@ Here is a list of the containers created and what you need to add to your struct
 |               |`> uint32_t` len     |
 |               |`> uint64_t (*`hash`)(generic1)`    |
 |               |`> int (*`cmp`)(generic1, generic1)`|
+|               |                     |
+|option.h       |**Option Struct**    |
+|               |`> generic` value    |
+|               |`> char` empty       |
