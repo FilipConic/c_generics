@@ -2,6 +2,7 @@
 #define GENERIC_ARRAY_H
 
 #include "utility.h"
+#include "option.h"
 
 #ifndef ARRAY_BASE_SIZE
 #define ARRAY_BASE_SIZE BASE_SIZE
@@ -22,17 +23,9 @@ typedef struct {
 #define array_append(arr, val) do { \
 		if ((arr)->len == (arr)->capacity) { \
 			 if ((arr)->buffer) { \
-				(arr)->buffer = reallocarray((arr)->buffer, (arr)->capacity <<= 1, sizeof(*(arr)->buffer)); \
-				if (!(arr)->buffer) { \
-					fprintf(stderr, ANSI_RED "ERROR (%s, %d):" ANSI_RESET " Not enough RAM for realloc!\n", __FILE__, __LINE__); \
-					exit(1); \
-				} \
+				(arr)->buffer = OPTION_REALLOC_ARRAY((arr)->buffer, (arr)->capacity <<= 1, sizeof(*(arr)->buffer)); \
 			} else { \
-				(arr)->buffer = calloc(ARRAY_BASE_SIZE, sizeof(*(arr)->buffer)); \
-				if (!(arr)->buffer) { \
-					fprintf(stderr, ANSI_RED "ERROR (%s, %d):" ANSI_RESET " Not enough RAM!\n", __FILE__, __LINE__); \
-					exit(1); \
-				} \
+				(arr)->buffer = OPTION_CALLOC(ARRAY_BASE_SIZE, sizeof(*(arr)->buffer)); \
 				(arr)->capacity = ARRAY_BASE_SIZE; \
 				(arr)->len = 0; \
 			} \
@@ -45,17 +38,9 @@ typedef struct {
 		} \
 		while ((count) + (arr)->len > (arr)->capacity) { \
 			if ((arr)->buffer) { \
-				(arr)->buffer = reallocarray((arr)->buffer, (arr)->capacity <<= 1, sizeof(*(arr)->buffer)); \
-				if (!(arr)->buffer) { \
-					fprintf(stderr, ANSI_RED "ERROR (%s, %d):" ANSI_RESET " Not enough RAM for realloc!\n", __FILE__, __LINE__); \
-					exit(1); \
-				} \
+				(arr)->buffer = OPTION_REALLOC_ARRAY((arr)->buffer, (arr)->capacity <<= 1, sizeof(*(arr)->buffer)); \
 			} else { \
-				(arr)->buffer = calloc(ARRAY_BASE_SIZE, sizeof(*(arr)->buffer)); \
-				if (!(arr)->buffer) { \
-					fprintf(stderr, ANSI_RED "ERROR (%s, %d):" ANSI_RESET " Not enough RAM!\n", __FILE__, __LINE__); \
-					exit(1); \
-				} \
+				(arr)->buffer = OPTION_CALLOC(ARRAY_BASE_SIZE, sizeof(*(arr)->buffer)); \
 				(arr)->capacity = ARRAY_BASE_SIZE; \
 				(arr)->len = 0; \
 			} \

@@ -5,7 +5,7 @@
 
 typedef Int32Array BinaryHeap;
 
-void binary_heap_insert(Int32Array* bh, int32_t val); 
-int32_t binary_heap_extract(Int32Array* bh);
+void binary_heap_insert(BinaryHeap* bh, int32_t val); 
+int32_t binary_heap_extract(BinaryHeap* bh);
 
 #endif // GENERIC_BINARY_HEAP_H

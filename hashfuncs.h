@@ -13,7 +13,7 @@
 
 uint64_t hash_wang_uint64(uint64_t n);
 uint64_t hash_murmur3_uint64(uint64_t n);
-uint64_t hash_string_seeded(const char* str, uint32_t len, uint32_t seed);
+uint64_t hash_string_seeded(const char* str, uint32_t len, uint64_t seed);
 #define hash_murmur3_string(str, len) hash_string_seeded(str, len, HASH_STRING_SEED)
 
 uint64_t hash_float(float x);

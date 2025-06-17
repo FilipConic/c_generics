@@ -2,6 +2,7 @@
 #define GENERICS_HASHSET_H
 
 #include "utility.h"
+#include "option.h"
 
 #ifndef HASHSET_BASE_SIZE
 #define HASHSET_BASE_SIZE BASE_SIZE
@@ -88,12 +89,8 @@ typedef struct {
 				uint64_t* bits = (set)->bitmap; \
 				typeof(*(set)->buffer)* buf = (set)->buffer; \
 				(set)->capacity <<= 1; \
-				(set)->bitmap = calloc((((set)->capacity - 1) >> 5) + 2, sizeof(uint64_t)); \
-				(set)->buffer = calloc((set)->capacity, sizeof(*(set)->buffer)); \
-				if (!(set)->bitmap || !(set)->buffer) { \
-					fprintf(stderr, ANSI_RED "ERROR (%s, %d): " ANSI_RESET "Not enough RAM to expand set!\n", __FILE__, __LINE__); \
-					assert(0); \
-				} \
+				(set)->bitmap = OPTION_CALLOC((((set)->capacity - 1) >> 5) + 2, sizeof(uint64_t)); \
+				(set)->buffer = OPTION_CALLOC((set)->capacity, sizeof(*(set)->buffer)); \
 				(set)->len = 0; \
 				for (uint32_t j = 0; j < ((set)->capacity >> 1); ++j) { \
 					if (bits[j / 64] & (0b1ULL << (j % 64))) { \
@@ -102,12 +99,8 @@ typedef struct {
 				} \
 				free(bits); \
 			} else { \
-				(set)->bitmap = calloc(__HASHSET_BITMAP_BASE_SIZE, sizeof(uint64_t)); \
-				(set)->buffer = calloc(HASHSET_BASE_SIZE, sizeof(*(set)->buffer)); \
-				if (!(set)->bitmap || !(set)->buffer) { \
-					fprintf(stderr, ANSI_RED "ERROR (%s, %d): " ANSI_RESET "Not enough RAM to expand set!\n", __FILE__, __LINE__); \
-					assert(0); \
-				} \
+				(set)->bitmap = OPTION_CALLOC(__HASHSET_BITMAP_BASE_SIZE, sizeof(uint64_t)); \
+				(set)->buffer = OPTION_CALLOC(HASHSET_BASE_SIZE, sizeof(*(set)->buffer)); \
 				(set)->capacity = HASHSET_BASE_SIZE; \
 				(set)->len = 0; \
 			}\

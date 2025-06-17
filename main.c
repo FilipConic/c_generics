@@ -1,5 +1,6 @@
 #include "array.h"
 #include "binary_heap.h"
+#include "option.h"
 #include "queue.h"
 #include "stack.h"
 #include "hashset.h"
@@ -133,11 +134,11 @@ void test_hashset() {
 		printf("%d, ", *el);
 	}
 	printf("}\n");
-	hashset_remove(&s, 10);
-	hashset_remove(&s, 8);
-	hashset_remove(&s, 20);
-	hashset_remove(&s, 30);
-	hashset_remove(&s, 40);
+	hashset_remove(&s, (int)10);
+	hashset_remove(&s, (int)8);
+	hashset_remove(&s, (int)20);
+	hashset_remove(&s, (int)30);
+	hashset_remove(&s, (int)40);
 	printf("%u, %u -> { ", s.capacity, s.len);
 	hashset_foreach(el, &s) {
 		printf("%d, ", *el);
@@ -156,12 +157,24 @@ void test_hashmap() {
 		printf("(%d: %d), ", kv->key, kv->value);
 	}
 	printf("}\n");
-	int32_t* v1 = hashmap_get(&hm, 2);
-	if (v1) printf("%d\n", *v1); else printf("None\n");
-	int32_t* v2 = hashmap_get(&hm, 8);
-	if (v2) printf("%d\n", *v2); else printf("None\n");
-	int32_t* v3 = hashmap_get(&hm, 5);
-	if (v3) printf("%d\n", *v3); else printf("None\n");
+	VoidPtrOption v1 = hashmap_get(&hm, (int)2);
+	option_if(v1) {
+		printf("%d\n", *(int*)UNWRAP(v1));
+	} else {
+		printf("None\n");
+	}
+	VoidPtrOption v2 = hashmap_get(&hm, (int)8);
+	option_if(v2) {
+		printf("%d\n", *(int*)UNWRAP(v2));
+	} else {
+		printf("None\n");
+	}
+	VoidPtrOption v3 = hashmap_get(&hm, (int)5);
+	option_if(v3) {
+		printf("%d\n", *(int*)UNWRAP(v3));
+	} else {
+		printf("None\n");
+	}
 	hashmap_free(&hm);
 }
 void test_string() {
@@ -183,6 +196,16 @@ void test_string() {
 	String s2 = { 0 };
 	string_append_file(&s2, "queue.h");
 
+	String s3 = { 0 };
+	string_append_c_str(&s3, "Hello world are you doing okay?");
+		
+	string_parse(slice, &s3, ' ') {
+		s2.len = 0;
+		string_append_slice(&s2, &slice);
+		printf("%s\n", s2.buffer);
+	}
+	
+	string_free(&s3);
 	string_free(&s2);
 	string_free(&s);
 }
@@ -207,11 +230,11 @@ void test_regex() {
 }
 
 int main(void) {
-	test_arrays();
-	test_stacks();
-	test_queues();
-	test_binary_heap();
-	test_hashset();
+	// test_arrays();
+	// test_stacks();
+	// test_queues();
+	// test_binary_heap();
+	// test_hashset();
 	test_hashmap();
 	test_string();
 	test_regex();

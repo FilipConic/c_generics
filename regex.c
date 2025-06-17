@@ -3,7 +3,7 @@
 #include "hashset.h"
 #include "hashmap.h"
 #include "hashfuncs.h"
-#include <stdio.h>
+#include "option.h"
 
 typedef struct CharSet {
 	uint64_t* bitmap;
@@ -50,7 +50,7 @@ struct __DFA {
 };
 
 struct __DFA* dfa_create() {
-	struct __DFA* dfa = calloc(1, sizeof(struct __DFA));
+	struct __DFA* dfa = OPTION_CALLOC(1, sizeof(struct __DFA));
 	dfa->states.hash = hash_uint64;
 	dfa->transition.hash = state_hash;
 	dfa->transition.cmp = state_cmp;
@@ -78,10 +78,8 @@ int dfa_run(struct __DFA* dfa, String* str) {
 	};
 	for (uint32_t i = 0; i < str->len; ++i) {
 		curr.symbol = str->buffer[i];
-		int32_t* ptr = hashmap_get(&dfa->transition, curr);
-		if (ptr) {
-			curr.state = *ptr;
-		} 
+		VoidPtrOption ptr = hashmap_get(&dfa->transition, curr);
+		curr.state = *(int32_t*)UNWRAP(ptr);
 	}
 	return hashset_contains(&dfa->final, curr.state);
 }

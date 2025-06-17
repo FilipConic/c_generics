@@ -114,7 +114,23 @@ void string_remove(String* str, char c) {
 	str->buffer[str->len] = '\0';
 }
 
-StringSlice string_parse(String* str, char c);
+StringSlice string_parse_by(String* str, char c) {
+	if (str->__token == -2) {
+		str->__token = -1;
+		return string_get_slice(str, 0, 0);
+	}
+	uint32_t start = ++str->__token;
+	for (; str->__token < (int32_t)str->len; ++str->__token) {
+		if (str->buffer[str->__token] == c) {
+			break;
+		}
+	}
+	StringSlice ret = string_get_slice(str, start, str->__token - start);
+	if (str->__token == (int32_t)str->len) {
+		str->__token = -2;
+	}
+	return ret;
+}
 
 uint64_t hash_string(String str) {
 	return hash_murmur3_string(str.buffer, str.len);

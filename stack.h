@@ -2,6 +2,7 @@
 #define GENERIC_STACK_H
 
 #include "utility.h"
+#include "option.h"
 
 #ifndef STACK_BASE_SIZE
 #define STACK_BASE_SIZE BASE_SIZE
@@ -22,13 +23,9 @@ typedef struct {
 #define stack_push(stk, val) do { \
 		if ((stk)->len == (stk)->capacity) { \
 			if ((stk)->buffer) { \
-				(stk)->buffer = reallocarray((stk)->buffer, (stk)->capacity <<= 1, sizeof(*(stk)->buffer)); \
+				(stk)->buffer = OPTION_REALLOC_ARRAY((stk)->buffer, (stk)->capacity <<= 1, sizeof(*(stk)->buffer)); \
 			} else { \
-				(stk)->buffer = calloc(STACK_BASE_SIZE, sizeof(*(stk)->buffer)); \
-				if (!(stk)->buffer) { \
-					fprintf(stderr, ANSI_RED "ERROR (%s, %d):" ANSI_RESET " Not enough RAM for stack!\n", __FILE__, __LINE__); \
-					exit(1); \
-				} \
+				(stk)->buffer = OPTION_CALLOC(STACK_BASE_SIZE, sizeof(*(stk)->buffer)); \
 				(stk)->capacity = STACK_BASE_SIZE; \
 				(stk)->len = 0; \
 			}\

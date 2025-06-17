@@ -39,7 +39,10 @@ int string_cmp(String str1, String str2);
 void string_remove(String* str, char c);
 
 #define string_get_slice(str, beginning, length) ((StringSlice){ .buffer = (str)->buffer + beginning, .len = length })
-StringSlice string_parse(String* str, char c);
+StringSlice string_parse_by(String* str, char c);
+#define string_parse(slice, str, c) (str)->__token = -1; \
+	for (StringSlice slice = string_parse_by(str, c); (str)->__token != -1; slice = string_parse_by(str, c))
+	
 
 uint64_t hash_string(String str);
 

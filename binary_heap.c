@@ -49,11 +49,11 @@ void bubble_down(Int32Array* bh, uint32_t pos) {
 	}
 }
 
-void binary_heap_insert(Int32Array* bh, int32_t val) {
+void binary_heap_insert(BinaryHeap* bh, int32_t val) {
 	array_append(bh, val);
 	bubble_up(bh, bh->len - 1);
 }
-int32_t binary_heap_extract(Int32Array* bh) {
+int32_t binary_heap_extract(BinaryHeap* bh) {
 	if (!bh->len) {
 		fprintf(stderr, ANSI_RED "ERROR:" ANSI_RESET " Trying to extract an element from an empty binary heap!\n");
 		exit(1);

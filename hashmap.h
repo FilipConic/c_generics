@@ -2,6 +2,7 @@
 #define GENERICS_HASHMAP_H
 
 #include "utility.h"
+#include "option.h"
 
 #ifndef HASHMAP_BASE_SIZE
 #define HASHMAP_BASE_SIZE BASE_SIZE
@@ -110,8 +111,8 @@ typedef struct {
 				uint64_t* bits = (map)->bitmap; \
 				typeof(*(map)->buffer)* buf = (map)->buffer; \
 				(map)->capacity <<= 1; \
-				(map)->bitmap = calloc((((map)->capacity - 1) >> 5) + 2, sizeof(uint64_t)); \
-				(map)->buffer = calloc((map)->capacity, sizeof(*(map)->buffer)); \
+				(map)->bitmap = OPTION_CALLOC((((map)->capacity - 1) >> 5) + 2, sizeof(uint64_t)); \
+				(map)->buffer = OPTION_CALLOC((map)->capacity, sizeof(*(map)->buffer)); \
 				(map)->len = 0; \
 				for (uint32_t j = 0; j < ((map)->capacity >> 1); ++j) { \
 					if (bits[j >> 6] & (0b1ULL << (j % 64))) { \
@@ -120,8 +121,8 @@ typedef struct {
 				} \
 				free(bits); \
 			} else { \
-				(map)->bitmap = calloc(__HASHMAP_BITMAP_BASE_SIZE, sizeof(uint64_t)); \
-				(map)->buffer = calloc(HASHMAP_BASE_SIZE, sizeof(*(map)->buffer)); \
+				(map)->bitmap = OPTION_CALLOC(__HASHMAP_BITMAP_BASE_SIZE, sizeof(uint64_t)); \
+				(map)->buffer = OPTION_CALLOC(HASHMAP_BASE_SIZE, sizeof(*(map)->buffer)); \
 				(map)->capacity = HASHMAP_BASE_SIZE; \
 				(map)->len = 0; \
 			}\
@@ -192,7 +193,12 @@ typedef struct {
 				break; \
 			} \
 		} \
-		typeof((map)->buffer[0].value)* ret = (found != -1 ? &(map)->buffer[found].value : NULL); \
+		VoidPtrOption ret = { 0 }; \
+		if (found == -1) { \
+			ret = NONE(VoidPtrOption); \
+		} else { \
+			ret = SOME(VoidPtrOption, &(map)->buffer[found].value); \
+		} \
 		ret; \
 	})
 #define hashmap_free(map) do { \

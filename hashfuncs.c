@@ -11,6 +11,9 @@ uint64_t hash_wang_uint64(uint64_t n) {
     return n;
 }
 uint64_t hash_murmur3_uint64(uint64_t n) {
+	if (!n) {
+		n = 0xfff24654127dcULL;
+	}
     n ^= n >> 33;
     n *= 0xff51afd7ed558ccdULL;
     n ^= n >> 33;
@@ -18,7 +21,7 @@ uint64_t hash_murmur3_uint64(uint64_t n) {
     n ^= n >> 33;
     return n;
 }
-uint64_t hash_string_seeded(const char* str, uint32_t len, uint32_t seed) {
+uint64_t hash_string_seeded(const char* str, uint32_t len, uint64_t seed) {
 	const uint64_t m = 0xc6a4a7935bd1e995ULL;
     const int r = 47;
 
