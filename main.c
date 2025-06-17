@@ -6,6 +6,7 @@
 #include "hashfuncs.h"
 #include "hashmap.h"
 #include "dynamic_string.h"
+#include "regex.h"
 
 int func(uint32_t x) {
 	return x % 2;
@@ -185,6 +186,25 @@ void test_string() {
 	string_free(&s2);
 	string_free(&s);
 }
+void test_regex() {
+	printf(">>> Testing DFA <<<\n");
+	DFA* dfa = dfa_create();
+	String s = { 0 };
+	string_append_c_str(&s, "aabbb");
+	printf("1: %s -> %d\n", s.buffer, dfa_run(dfa, &s));
+	s.len = 0;
+	string_append_c_str(&s, "abbbab");
+	printf("2: %s -> %d\n", s.buffer, dfa_run(dfa, &s));
+	s.len = 0;
+	string_append_c_str(&s, "bbbbbb");
+	printf("3: %s -> %d\n", s.buffer, dfa_run(dfa, &s));
+	s.len = 0;
+	string_append_c_str(&s, "bbbaaaa");
+	printf("4: %s -> %d\n", s.buffer, dfa_run(dfa, &s));
+	s.len = 0;
+	string_free(&s);
+	dfa_free(dfa);
+}
 
 int main(void) {
 	test_arrays();
@@ -194,5 +214,7 @@ int main(void) {
 	test_hashset();
 	test_hashmap();
 	test_string();
+	test_regex();
+
 	return 0;
 }

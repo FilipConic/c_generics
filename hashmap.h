@@ -49,6 +49,9 @@ typedef struct {
 #define __hashmap_cmp(map, val, pos) ({ \
 		int32_t eq = 0; \
 		if (!(map)->cmp) { \
+			if (sizeof((val).key) > 8) { \
+				fprintf(stderr, ANSI_YELLOW "WARNING (%s, %d): " ANSI_RESET "You should be using a custom compare function for structs!\n", __FILE__, __LINE__); \
+			} \
 			if (__hashmap_bit_cmp((map)->buffer[pos].key, (val).key)) { \
 				eq = 1; \
 			} \
@@ -62,6 +65,9 @@ typedef struct {
 #define __hashmap_cmp_key(map, key_val, pos) ({ \
 		int32_t eq = 0; \
 		if (!(map)->cmp) { \
+			if (sizeof(key_val) > 8) { \
+				fprintf(stderr, ANSI_YELLOW "WARNING (%s, %d): " ANSI_RESET "You should be using a custom compare function for structs!\n", __FILE__, __LINE__); \
+			} \
 			if (__hashmap_bit_cmp((map)->buffer[pos].key, (key_val))) { \
 				eq = 1; \
 			} \
@@ -73,6 +79,10 @@ typedef struct {
 		eq; \
 	})
 #define __hashmap_insert(map, val) do { \
+		if (!(map)->hash) { \
+			fprintf(stderr, ANSI_RED "ERROR (%s, %d): " ANSI_RESET "You didn\'t provide a hash function!\n", __FILE__, __LINE__); \
+			assert(0); \
+		} \
 		uint32_t pos = (map)->hash(val.key) % (map)->capacity; \
 		int32_t first_tombstone = -1; \
 		for (uint32_t i = 0; i < (map)->capacity; ++i) { \
@@ -123,6 +133,10 @@ typedef struct {
 	for (typeof(*(map)->buffer)* val_name = &(map)->buffer[0]; __CONCAT__(i, __LINE__)++ < (map)->capacity; ++val_name) \
 		if (__hashmap_is_filled_pos(map, (__CONCAT__(i, __LINE__) - 1)))
 #define hashmap_remove(map, key_val) do { \
+		if (!(map)->hash) { \
+			fprintf(stderr, ANSI_RED "ERROR (%s, %d): " ANSI_RESET "You didn\'t provide a hash function!\n", __FILE__, __LINE__); \
+			assert(0); \
+		} \
 		uint32_t pos = (map)->hash(key_val) % (map)->capacity; \
 		for (uint32_t i = 0; i < (map)->capacity; ++i) { \
 			uint32_t probe = (pos + i) % (map)->capacity; \
@@ -141,6 +155,10 @@ typedef struct {
 		} \
 	} while(0)
 #define hashmap_contains(map, key_val) ({ \
+		if (!(map)->hash) { \
+			fprintf(stderr, ANSI_RED "ERROR (%s, %d): " ANSI_RESET "You didn\'t provide a hash function!\n", __FILE__, __LINE__); \
+			assert(0); \
+		} \
 		uint32_t pos = (map)->hash(key_val) % (map)->capacity; \
 		uint32_t found = 0; \
 		for (uint32_t i = 0; i < (map)->capacity; ++i) { \
@@ -157,6 +175,10 @@ typedef struct {
 		found; \
 	})
 #define hashmap_get(map, key_val) ({ \
+		if (!(map)->hash) { \
+			fprintf(stderr, ANSI_RED "ERROR (%s, %d): " ANSI_RESET "You didn\'t provide a hash function!\n", __FILE__, __LINE__); \
+			assert(0); \
+		} \
 		uint32_t pos = (map)->hash(key_val) % (map)->capacity; \
 		int32_t found = -1; \
 		for (uint32_t i = 0; i < (map)->capacity; ++i) { \
