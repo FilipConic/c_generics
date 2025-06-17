@@ -48,3 +48,5 @@ Here is a list of the containers created and what you need to add to your struct
 |option.h       |**Option Struct**    |
 |               |`> generic` value    |
 |               |`> char` empty       |
+
+Other usefull libs like strings, binary heap, regex and hash functions.
