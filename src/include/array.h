@@ -45,8 +45,8 @@ typedef struct {
 				(arr)->len = 0; \
 			} \
 		} \
-		for (uint32_t i = 0; i < (count); ++i) { \
-			(arr)->buffer[(arr)->len++] = (vals)[i]; \
+		for (uint32_t ijk327 = 0; ijk327 < (count); ++ijk327) { \
+			(arr)->buffer[(arr)->len++] = (vals)[ijk327]; \
 		} \
 	} while (0)
 #define array_remove(arr, pos) do { \
@@ -55,8 +55,8 @@ typedef struct {
 			exit(1); \
 		} \
 		--(arr)->len; \
-		for (uint32_t i = pos; i < (arr)->len; ++i) { \
-			(arr)->buffer[i] = (arr)->buffer[i + 1]; \
+		for (uint32_t ikj283 = pos; ikj283 < (arr)->len; ++ikj283) { \
+			(arr)->buffer[ikj283] = (arr)->buffer[ikj283 + 1]; \
 		} \
 	} while(0)
 #define array_insert(arr, val, pos) do { \
@@ -65,8 +65,8 @@ typedef struct {
 			exit(1); \
 		} \
 		array_append(arr, val); \
-		for (uint32_t i = (arr)->len - 1; i > pos; --i) { \
-			(arr)->buffer[i] = (arr)->buffer[i - 1]; \
+		for (uint32_t iup12365 = (arr)->len - 1; iup12365 > pos; --iup12365) { \
+			(arr)->buffer[iup12365] = (arr)->buffer[iup12365 - 1]; \
 		} \
 		(arr)->buffer[pos] = val; \
 	} while(0)
@@ -89,25 +89,25 @@ typedef struct {
 	} while (0)
 #define array_filter(arr, func) ({ \
 		typeof(*arr) res = { 0 }; \
-		for (uint32_t i = 0; i < (arr)->len; ++i) { \
-			if ((*func)((arr)->buffer[i])) { \
-				array_append(&res, (arr)->buffer[i]); \
+		for (uint32_t i57 = 0; i57 < (arr)->len; ++i57) { \
+			if ((*func)((arr)->buffer[i57])) { \
+				array_append(&res, (arr)->buffer[i57]); \
 			} \
 		} \
 		res; \
 	})
 #define array_map(arr, func, arr_res_type) ({ \
 		arr_res_type res = { 0 }; \
-		for (uint32_t i = 0; i < (arr)->len; ++i) { \
-			array_append(&res, func((arr)->buffer[i])); \
+		for (uint32_t i8459 = 0; i8459 < (arr)->len; ++i8459) { \
+			array_append(&res, func((arr)->buffer[i8459])); \
 		} \
 		res; \
 	})
 #define array_find_by_func(arr, val, cmp) ({ \
 		int ret = -1; \
-		for (uint32_t i = 0; i < (arr)->) { \
-			if ((cmp)(&val, &((arr)->buffer[i]))) { \
-				ret = (int)i;\
+		for (uint32_t n982 = 0; n982 < (arr)->len; ++n982) { \
+			if ((cmp)(&val, &((arr)->buffer[n982]))) { \
+				ret = (int)n982;\
 				break; \
 			} \
 		} \
@@ -115,9 +115,9 @@ typedef struct {
 	})
 #define array_find(arr, val) ({ \
 		int ret = -1; \
-		for (uint32_t i = 0; i < (arr)->len; ++i) { \
-			if ((arr)->buffer[i] == val) { \
-				ret = (int)i; \
+		for (uint32_t i6723 = 0; i6723 < (arr)->len; ++i6723) { \
+			if ((arr)->buffer[i6723] == val) { \
+				ret = (int)i6723; \
 				break; \
 			} \
 		} \

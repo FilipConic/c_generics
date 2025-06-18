@@ -14,20 +14,22 @@ typedef struct {
 } VoidPtrOption;
 
 #define SOME(op, val) ((op){ .value = val, .empty = 0, })
-#define NONE(op) ((op){ .value = 0, .empty = 1, })
+#define NONE(op)  ((op){ .empty = 1, })
 #define UNWRAP(op) ({ \
-	if (op.empty) { \
+	typeof(op) _op = op; \
+	if (_op.empty) { \
 		fprintf(stderr, ANSI_RED "ERROR (%s, %d): " ANSI_RESET "Trying to unwrap a None value!\n", __FILE__, __LINE__); \
 		exit(1); \
 	} \
-	op.value; \
+	_op.value; \
 })
 #define EXPECT(op, msg) ({ \
-	if (op.empty) { \
+	typeof(op) _op = op; \
+	if (_op.empty) { \
 		fprintf(stderr, ANSI_RED "ERROR (%s, %d): " ANSI_RESET "%s", __FILE__, __LINE__, msg); \
 		exit(1); \
 	} \
-	op.value; \
+	_op.value; \
 })
 #define option_if(op) if (!op.empty)
 

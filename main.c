@@ -19,8 +19,7 @@ uint32_t foo(uint32_t x) {
 void test_arrays() {
 	printf(">>> Testing Arrays <<<\n");
 	Uint32Array arr = { 0 };
-	uint32_t vals[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-	array_multi_append(&arr, vals, 10);
+	array_multi_append(&arr, ((uint32_t[]){ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }), 10);
 	printf("[ ");
 	array_foreach(i, &arr) {
 		printf("%d, ", *i);
@@ -139,11 +138,20 @@ void test_hashset() {
 	hashset_remove(&s, (int)20);
 	hashset_remove(&s, (int)30);
 	hashset_remove(&s, (int)40);
-	printf("%u, %u -> { ", s.capacity, s.len);
-	hashset_foreach(el, &s) {
+	// printf("%u, %u -> { ", s.capacity, s.len);
+	// hashset_foreach(el, &s) {
+	// 	printf("%d, ", *el);
+	// }
+	// printf("}\n");
+	Int32Set s2 = { 0 };
+	s2.hash = hash_uint64;
+	hashset_multi_add(&s2, 10, ((int[]){1, 2, -3, 6, 123, 56, 912, 92, -64, -1633}));
+	printf("%u, %u -> { ", s2.capacity, s2.len);
+	hashset_foreach(el, &s2) {
 		printf("%d, ", *el);
 	}
 	printf("}\n");
+	hashset_free(&s2);
 	hashset_free(&s);
 }
 void test_hashmap() {
@@ -187,14 +195,14 @@ void test_string() {
 	string_remove(&s, ' ');
 	printf("2: \"%s\"\n", s.buffer);
 
-	StringSlice sl = string_get_slice(&s, 5, 11);
-	string_append_slice(&s, &sl);
+	StringSliceOption sl = string_get_slice(&s, 5, 11);
+	string_append_slice(&s, &sl.value);
 	printf("3: \"%s\"\n", s.buffer);
 	string_reserve(&s, 20);
 	printf("4: \"%s\"\n", s.buffer);
 	
 	String s2 = { 0 };
-	string_append_file(&s2, "queue.h");
+	string_append_file(&s2, "./src/include/queue.h");
 
 	String s3 = { 0 };
 	string_append_c_str(&s3, "Hello world are you doing okay?");
@@ -210,23 +218,16 @@ void test_string() {
 	string_free(&s);
 }
 void test_regex() {
-	printf(">>> Testing DFA <<<\n");
-	DFA* dfa = dfa_create();
-	String s = { 0 };
-	string_append_c_str(&s, "aabbb");
-	printf("1: %s -> %d\n", s.buffer, dfa_run(dfa, &s));
-	s.len = 0;
-	string_append_c_str(&s, "abbbab");
-	printf("2: %s -> %d\n", s.buffer, dfa_run(dfa, &s));
-	s.len = 0;
-	string_append_c_str(&s, "bbbbbb");
-	printf("3: %s -> %d\n", s.buffer, dfa_run(dfa, &s));
-	s.len = 0;
-	string_append_c_str(&s, "bbbaaaa");
-	printf("4: %s -> %d\n", s.buffer, dfa_run(dfa, &s));
-	s.len = 0;
-	string_free(&s);
+	EpsilonNFA* epsilon = epsilon_create();
+	epsilon_print(epsilon);
+	NFA* nfa = epsilon_to_nfa(epsilon);
+	nfa_print(nfa);
+	DFA* dfa = nfa_to_dfa(nfa);
+	dfa_print(dfa);
+
 	dfa_free(dfa);
+	nfa_free(nfa);
+	epsilon_free(epsilon);
 }
 
 int main(void) {
@@ -235,8 +236,8 @@ int main(void) {
 	// test_queues();
 	// test_binary_heap();
 	// test_hashset();
-	test_hashmap();
-	test_string();
+	// test_hashmap();
+	// test_string();
 	test_regex();
 
 	return 0;

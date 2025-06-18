@@ -32,6 +32,7 @@ typedef struct {
 #define __hashmap_is_tombstone_pos(map, pos) ((map)->bitmap[(((pos) + (map)->capacity - 1) >> 6) + 1] & (0b1ULL << ((pos) % 64)))
 #define __hashmap_bury_pos(map, pos) ((map)->bitmap[(((pos) + (map)->capacity - 1) >> 6) + 1] |= (0b1ULL << ((pos) % 64)))
 #define __hashmap_dig_pos(map, pos) ((map)->bitmap[(((pos) + (map)->capacity - 1) >> 6) + 1] &= ~(0b1ULL << ((pos) % 64))) 
+
 #define __hashmap_bit_cmp(a, b) ({ \
 		_Static_assert(__builtin_types_compatible_p(typeof(a), typeof(b)), "Trying to compare two variables of different types!\n"); \
 		uint32_t len = sizeof(a); \
@@ -105,31 +106,46 @@ typedef struct {
 			} \
 		} \
 	} while(0)
-#define hashmap_add_kv(map, val) do { \
-		if ((map)->len * 1000 >= (map)->capacity * 675) { \
-			if ((map)->buffer) { \
-				uint64_t* bits = (map)->bitmap; \
-				typeof(*(map)->buffer)* buf = (map)->buffer; \
-				(map)->capacity <<= 1; \
-				(map)->bitmap = OPTION_CALLOC((((map)->capacity - 1) >> 5) + 2, sizeof(uint64_t)); \
-				(map)->buffer = OPTION_CALLOC((map)->capacity, sizeof(*(map)->buffer)); \
-				(map)->len = 0; \
-				for (uint32_t j = 0; j < ((map)->capacity >> 1); ++j) { \
-					if (bits[j >> 6] & (0b1ULL << (j % 64))) { \
-						__hashmap_insert(map, buf[j]); \
-					} \
+#define __hashmap_reserve(map, count) do { \
+		if ((map)->buffer) { \
+			uint64_t* bits = (map)->bitmap; \
+			typeof(*(map)->buffer)* buf = (map)->buffer; \
+			(map)->capacity = (count); \
+			(map)->bitmap = OPTION_CALLOC((((count) - 1) >> 5) + 2, sizeof(uint64_t)); \
+			(map)->buffer = OPTION_CALLOC((count), sizeof(*(map)->buffer)); \
+			(map)->len = 0; \
+			for (uint32_t j = 0; j < ((map)->capacity >> 1); ++j) { \
+				if (bits[j >> 6] & (0b1ULL << (j % 64))) { \
+					__hashmap_insert(map, buf[j]); \
 				} \
-				free(bits); \
-			} else { \
-				(map)->bitmap = OPTION_CALLOC(__HASHMAP_BITMAP_BASE_SIZE, sizeof(uint64_t)); \
-				(map)->buffer = OPTION_CALLOC(HASHMAP_BASE_SIZE, sizeof(*(map)->buffer)); \
-				(map)->capacity = HASHMAP_BASE_SIZE; \
-				(map)->len = 0; \
-			}\
+			} \
+			free(bits); \
+		} else { \
+			(map)->bitmap = OPTION_CALLOC((((count) - 1) >> 5) + 2, sizeof(uint64_t)); \
+			(map)->buffer = OPTION_CALLOC((count), sizeof(*(map)->buffer)); \
+			(map)->capacity = HASHMAP_BASE_SIZE; \
+			(map)->len = 0; \
+		}\
+	} while (0)
+#define hashmap_add_kv(map, val) do { \
+		uint32_t res = (map)->capacity ? (map)->capacity : HASHMAP_BASE_SIZE; \
+		if ((map)->len * 1000 >= res * 675) { \
+			res <<= 1; \
 		} \
+		if (res != (map)->capacity) __hashmap_reserve(map, res); \
 		__hashmap_insert(map, val); \
 	} while (0)
-#define hashmap_add(map, key_val, val_val) hashmap_add_kv(map, ((typeof(*(map)->buffer)){ .key = key_val, .value = val_val, }))
+#define hashmap_multi_add(map, n, vals) do { \
+		uint32_t res = (map)->capacity ? (map)->capacity : HASHMAP_BASE_SIZE; \
+		while ((map)->len * 1000 >= res * 675) { \
+			res <<= 1; \
+		} \
+		if (res != (map)->capacity) __hashmap_reserve(map, res); \
+		for (uint32_t i1376 = 0; i1376 < (n); ++i1376) { \
+			__hashmap_insert(map, vals[i1376]); \
+		} \
+	} while (0)
+#define hashmap_add(map, key_val, val_val) hashmap_add_kv(map, ((typeof(*(map)->buffer)){ .key = (key_val), .value = (val_val), }))
 #define hashmap_foreach(val_name, map) uint32_t __CONCAT__(i, __LINE__) = 0; \
 	for (typeof(*(map)->buffer)* val_name = &(map)->buffer[0]; __CONCAT__(i, __LINE__)++ < (map)->capacity; ++val_name) \
 		if (__hashmap_is_filled_pos(map, (__CONCAT__(i, __LINE__) - 1)))

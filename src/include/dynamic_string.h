@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <string.h>
+#include "option.h"
 
 #ifndef DYN_STRING_BASE_SIZE
 #define DYN_STRING_BASE_SIZE 256
@@ -19,6 +20,11 @@ typedef struct {
 	char const* buffer;
 	uint32_t len;
 } StringSlice;
+
+typedef struct {
+	StringSlice value;
+	char empty;
+} StringSliceOption;
 
 void string_reserve(String* str, uint32_t size);
 
@@ -38,12 +44,22 @@ void string_copy(String* dst, const String* src);
 int string_cmp(String str1, String str2);
 void string_remove(String* str, char c);
 
-#define string_get_slice(str, beginning, length) ((StringSlice){ .buffer = (str)->buffer + beginning, .len = length })
-StringSlice string_parse_by(String* str, char c);
+#define string_get_slice(str, beginning, length) ({ \
+		StringSliceOption ret = { 0 }; \
+		if ((int)(beginning) > (int)(str)->len || (int)(length) < 0) { \
+			ret = NONE(StringSliceOption); \
+		} else { \
+			ret = SOME(StringSliceOption, ((StringSlice){ \
+				.buffer = (str)->buffer + (beginning), \
+				.len = (length), \
+			})); \
+		} \
+		ret; \
+	})
+StringSliceOption string_parse_by(String* str, char c);
 #define string_parse(slice, str, c) (str)->__token = -1; \
-	for (StringSlice slice = string_parse_by(str, c); (str)->__token != -1; slice = string_parse_by(str, c))
+	for (StringSlice slice = UNWRAP(string_parse_by(str, c)); (str)->__token != -1; slice = UNWRAP(string_parse_by(str, c)))
 	
-
 uint64_t hash_string(String str);
 
 void string_free(String* str);

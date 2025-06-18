@@ -1,5 +1,6 @@
 #include "dynamic_string.h"
 
+#include "option.h"
 #include "utility.h"
 #include "hashfuncs.h"
 #include <stdio.h>
@@ -114,7 +115,7 @@ void string_remove(String* str, char c) {
 	str->buffer[str->len] = '\0';
 }
 
-StringSlice string_parse_by(String* str, char c) {
+StringSliceOption string_parse_by(String* str, char c) {
 	if (str->__token == -2) {
 		str->__token = -1;
 		return string_get_slice(str, 0, 0);
@@ -125,7 +126,7 @@ StringSlice string_parse_by(String* str, char c) {
 			break;
 		}
 	}
-	StringSlice ret = string_get_slice(str, start, str->__token - start);
+	StringSliceOption ret = string_get_slice(str, start, str->__token - start);
 	if (str->__token == (int32_t)str->len) {
 		str->__token = -2;
 	}

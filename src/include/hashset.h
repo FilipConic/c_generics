@@ -34,7 +34,7 @@ typedef struct {
 		uint8_t* a_ptr = (uint8_t*)(&_a); \
 		uint8_t* b_ptr = (uint8_t*)(&_b); \
 		uint8_t ret = 1; \
-		for (uint32_t i = 0; i < len; ++i) { \
+		for (uint32_t j473 = 0; j473 < len; ++j473) { \
 			if (*(a_ptr++) != *(b_ptr++)) { \
 				ret = 0; \
 				break; \
@@ -65,8 +65,8 @@ typedef struct {
 		} \
 		uint32_t pos = (set)->hash(val) % (set)->capacity; \
 		int32_t first_tombstone = -1; \
-		for (uint32_t i = 0; i < (set)->capacity; ++i) { \
-			uint32_t probe = (pos + i) % (set)->capacity; \
+		for (uint32_t i1923 = 0; i1923 < (set)->capacity; ++i1923) { \
+			uint32_t probe = (pos + i1923) % (set)->capacity; \
 	   		if (__hashset_is_filled_pos(set, probe)) { \
 				if (__hashset_cmp(set, val, probe)) { \
 	   				break; \
@@ -83,30 +83,46 @@ typedef struct {
 			}\
 		} \
 	} while(0)
-#define hashset_add(set, val) do { \
-		if ((set)->len * 1000 >= (set)->capacity * 675) { \
-			if ((set)->buffer) { \
-				uint64_t* bits = (set)->bitmap; \
-				typeof(*(set)->buffer)* buf = (set)->buffer; \
-				(set)->capacity <<= 1; \
-				(set)->bitmap = OPTION_CALLOC((((set)->capacity - 1) >> 5) + 2, sizeof(uint64_t)); \
-				(set)->buffer = OPTION_CALLOC((set)->capacity, sizeof(*(set)->buffer)); \
-				(set)->len = 0; \
-				for (uint32_t j = 0; j < ((set)->capacity >> 1); ++j) { \
-					if (bits[j / 64] & (0b1ULL << (j % 64))) { \
-						__hashset_insert(set, buf[j]); \
-					} \
+
+#define __hashset_reserve(set, n) do { \
+		if ((set)->buffer) { \
+			uint64_t* bits = (set)->bitmap; \
+			typeof(*(set)->buffer)* buf = (set)->buffer; \
+			(set)->capacity = (n); \
+			(set)->bitmap = OPTION_CALLOC((((n) - 1) >> 5) + 2, sizeof(uint64_t)); \
+			(set)->buffer = OPTION_CALLOC(n, sizeof(*(set)->buffer)); \
+			(set)->len = 0; \
+			for (uint32_t j823742 = 0; j823742 < ((set)->capacity >> 1); ++j823742) { \
+				if (bits[j823742 / 64] & (0b1ULL << (j823742 % 64))) { \
+					__hashset_insert(set, buf[j823742]); \
 				} \
-				free(bits); \
-			} else { \
-				(set)->bitmap = OPTION_CALLOC(__HASHSET_BITMAP_BASE_SIZE, sizeof(uint64_t)); \
-				(set)->buffer = OPTION_CALLOC(HASHSET_BASE_SIZE, sizeof(*(set)->buffer)); \
-				(set)->capacity = HASHSET_BASE_SIZE; \
-				(set)->len = 0; \
-			}\
+			} \
+			free(bits); \
+		} else { \
+			(set)->bitmap = OPTION_CALLOC((((n) - 1) >> 5) + 2, sizeof(uint64_t)); \
+			(set)->buffer = OPTION_CALLOC((n), sizeof(*(set)->buffer)); \
+			(set)->capacity = HASHSET_BASE_SIZE; \
+			(set)->len = 0; \
+		}\
+	} while (0)
+#define hashset_add(set, val) do { \
+		uint32_t res = (set)->capacity ? (set)->capacity : HASHSET_BASE_SIZE; \
+		if ((set)->len * 1000 >= res * 675) { \
+			res <<= 1; \
 		} \
+		if (res != (set)->capacity) __hashset_reserve(set, res); \
 		__hashset_insert(set, val); \
 	} while(0)
+#define hashset_multi_add(set, n, vals) do { \
+		uint32_t res = (set)->capacity ? (set)->capacity : HASHSET_BASE_SIZE; \
+		while (((set)->len + (n)) * 1000 >= res * 675) { \
+			res <<= 1; \
+		} \
+		if (res != (set)->capacity) __hashset_reserve(set, res); \
+		for (uint32_t i328 = 0; i328 < (n); ++i328) { \
+			__hashset_insert(set, vals[i328]); \
+		} \
+	} while (0)
 #define hashset_foreach(val_name, set) uint32_t __CONCAT__(i, __LINE__) = 0; \
 	for (typeof(*(set)->buffer)* val_name = &(set)->buffer[0]; __CONCAT__(i, __LINE__)++ < (set)->capacity; ++val_name) \
 		if (__hashset_is_filled_pos(set, __CONCAT__(i, __LINE__) - 1))
@@ -116,8 +132,8 @@ typedef struct {
 			assert(0); \
 		} \
 		uint32_t pos = (set)->hash(val) % (set)->capacity; \
-		for (uint32_t i = 0; i < (set)->capacity; ++i) { \
-			uint32_t probe = (pos + i) % (set)->capacity; \
+		for (uint32_t ij738 = 0; ij738 < (set)->capacity; ++ij738) { \
+			uint32_t probe = (pos + ij738) % (set)->capacity; \
 	   		if (__hashset_is_filled_pos(set, probe)) { \
 				if (__hashset_cmp(set, val, probe)) { \
 	   				__hashset_bury_pos(set, probe); \
@@ -138,8 +154,8 @@ typedef struct {
 		} \
 		uint32_t pos = (set)->hash(val) % (set)->capacity; \
 		uint32_t found = 0; \
-		for (uint32_t i = 0; i < (set)->capacity; ++i) { \
-			uint32_t probe = (pos + i) % (set)->capacity; \
+		for (uint32_t i9483 = 0; i9483 < (set)->capacity; ++i9483) { \
+			uint32_t probe = (pos + i9483) % (set)->capacity; \
 			if (__hashset_is_filled_pos(set, probe)) { \
 				if (__hashset_cmp(set, val, probe)) { \
 					found = 1; \

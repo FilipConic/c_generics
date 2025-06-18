@@ -32,6 +32,16 @@ typedef struct {
 		} \
 		(stk)->buffer[(stk)->len++] = val; \
 	} while (0)
+#define stack_multi_push(stk, n, vals) do { \
+		uint32_t res = (stk)->capacity ? (stk)->capacity : STACK_BASE_SIZE; \
+		while ((stk)->len + (n) < res) { \
+			res <<= 1; \
+		} \
+		(stk)->buffer = OPTION_REALLOC_ARRAY((stk)->buffer, res, sizeof(*(stk)->buffer)); \
+		for (uint32_t i3912 = 0; i3912 < n; ++i3912) { \
+			stack_push(stk, vals[i3912]); \
+		} \
+	} while(0)
 #define stack_pop(stk) ({ \
 		if (!(stk)->len) { \
 			fprintf(stderr, ANSI_RED "ERROR (%s, %d):" ANSI_RESET " Trying to pop an empty stack!\n", __FILE__, __LINE__); \
@@ -48,8 +58,8 @@ typedef struct {
 	})
 #define stack_reverse(stk) ({ \
 		typeof(*(stk)) ret = { 0 }; \
-		for (uint32_t i = 0; i < (stk)->len; ++i) { \
-			stack_push(&ret, (stk)->buffer[(stk)->len - 1 - i]); \
+		for (uint32_t i72634 = 0; i72634 < (stk)->len; ++i72634) { \
+			stack_push(&ret, (stk)->buffer[(stk)->len - 1 - i72634]); \
 		} \
 		ret; \
 	})
