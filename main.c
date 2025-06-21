@@ -218,16 +218,8 @@ void test_string() {
 	string_free(&s);
 }
 void test_regex() {
-	EpsilonNFA* epsilon = epsilon_create();
-	epsilon_print(epsilon);
-	NFA* nfa = epsilon_to_nfa(epsilon);
-	nfa_print(nfa);
-	DFA* dfa = nfa_to_dfa(nfa);
-	dfa_print(dfa);
-
-	dfa_free(dfa);
-	nfa_free(nfa);
-	epsilon_free(epsilon);
+	Regex* reg = regex_init("gray|grey");
+	regex_free(reg);
 }
 
 int main(void) {

@@ -5,23 +5,10 @@
 #include "dynamic_string.h"
 
 typedef struct __DFA DFA;
-DFA* dfa_create();
-int dfa_run(DFA* dfa, String* str);
-void dfa_free(DFA* dfa);
-void dfa_print(DFA* dfa);
 
 typedef struct __NFA NFA;
-NFA* nfa_create();
-int nfa_run(NFA* nfa, String* str);
-void nfa_free(NFA* nfa);
-DFA* nfa_to_dfa(NFA* nfa);
-void nfa_print(NFA* nfa);
 
 typedef struct __EpsilonNFA EpsilonNFA;
-EpsilonNFA* epsilon_create();
-void epsilon_print(EpsilonNFA* epsilon);
-void epsilon_free(EpsilonNFA* epsilon);
-NFA* epsilon_to_nfa(EpsilonNFA* epsilon);
 
 typedef struct __Regex Regex;
 

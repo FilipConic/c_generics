@@ -54,7 +54,7 @@ typedef struct {
 			fprintf(stderr, ANSI_RED "ERROR (%s, %d):" ANSI_RESET " Trying to peek at an empty stack!\n", __FILE__, __LINE__); \
 			exit(1); \
 		} \
-		(stk)->buffer[(stk)->len - 1]; \
+		&(stk)->buffer[(stk)->len - 1]; \
 	})
 #define stack_reverse(stk) ({ \
 		typeof(*(stk)) ret = { 0 }; \

@@ -34,8 +34,39 @@ typedef struct {
 			}\
 		} \
 		++(que)->len; \
-		(que)->buffer[(que)->head++] = val; \
+		(que)->buffer[(que)->head] = val; \
+		(que)->head = ((que)->head + 1) % (que)->capacity; \
 	} while(0)
+#define queue_push_back(que, val) do { \
+		if ((que)->len == (que)->capacity) { \
+			if ((que)->buffer) { \
+				typeof(*(que)->buffer)* buf = OPTION_MALLOC(((que)->capacity <<= 1), sizeof(*(que)->buffer)); \
+				for (uint32_t i = (que)->head, j = 0; j < (que)->len; i = (i + 1) % (que)->len) { \
+					buf[j++] = (que)->buffer[i]; \
+				} \
+				if (!(que)->buffer) { \
+					free((que)->buffer); \
+				} \
+				(que)->buffer = buf; \
+			} else { \
+				(que)->buffer = OPTION_MALLOC(QUEUE_BASE_SIZE,  sizeof(*(que)->buffer)); \
+				(que)->capacity = QUEUE_BASE_SIZE; \
+				(que)->len = 0; \
+			}\
+		} \
+		++(que)->len; \
+		(que)->head = (que)->tail ? ((que)->tail - 1) : (que)->capacity - 1; \
+		(que)->buffer[(que)->tail] = val; \
+	} while(0)
+
+#define queue_head(que) ({ \
+		if (!(que)->len) { \
+			fprintf(stderr, ANSI_RED "ERROR (%s, %d):" ANSI_RESET " Trying to peek at the tail of an empty queue!\n", __FILE__, __LINE__); \
+			exit(1); \
+		} \
+		uint32_t pos = (que)->head ? (que)->head - 1 : (que)->capacity - 1; \
+		&(que)->buffer[pos]; \
+	})
 #define queue_pop(que) ({ \
 		if (!(que)->len) { \
 			fprintf(stderr, ANSI_RED "ERROR (%s, %d):" ANSI_RESET " Trying to pop an empty queue!\n", __FILE__, __LINE__); \
